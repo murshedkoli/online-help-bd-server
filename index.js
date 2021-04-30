@@ -48,7 +48,6 @@ client.connect(err => {
 
 
     app.post('/neworder', (req, res) => {
-        console.log(req.body)
         ordersCollection.insertOne(req.body)
             .then(result => {
                res.send(result)
@@ -129,7 +128,7 @@ client.connect(err => {
     const data= req.body;
     
    ordersCollection.updateOne({_id: ObjectId(id)},
-    {$set:{ status: data.orderStatus }}
+    {$set:{ status: data.orderStatus, attachment: data.idUrl }}
     )
     .then(result=>{
       res.send(result)
