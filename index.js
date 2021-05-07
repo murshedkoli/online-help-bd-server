@@ -60,7 +60,7 @@ client.connect(err => {
     });
 
 
-    
+
     app.post('/newvoucher', (req, res) => {
         vouchersCollection.insertOne(req.body)
             .then(result => {
@@ -98,7 +98,7 @@ client.connect(err => {
 
 
     app.get('/voucher', (req, res) => {
-        vouchersCollection.find({email: req.query.email})
+        vouchersCollection.find({ email: req.query.email })
             .toArray((err, document) => {
                 res.send(document[0]);
             })
@@ -130,45 +130,48 @@ client.connect(err => {
     })
 
 
-    app.get('/recharge-requests', (req, res) => {
-        admin.find({ email: req.query.email })
-            .toArray((err, document) => {
-                if (document.length) {
-                    rechargeRequestCollection.find()
+   
+
+
+app.get('/recharge-requests', (req, res) => {
+    admin.find({ email: req.query.email })
+        .toArray((err, document) => {
+            if (document.length) {
+                rechargeRequestCollection.find()
                     .toArray((err, documents) => {
                         res.send(documents);
                     })
-                } else {
-                    rechargeRequestCollection.find({email: req.query.email})
-            .toArray((err, documents) => {
-                res.send(documents);
-            })
-                }
-            })
-       
-        
-    })
+            } else {
+                rechargeRequestCollection.find({ email: req.query.email })
+                    .toArray((err, documents) => {
+                        res.send(documents);
+                    })
+            }
+        })
 
 
-    app.get('/pendingorders', (req, res) => {
-        admin.find({ email: req.query.email })
-            .toArray((err, documents) => {
-                if (documents.length) {
-                    ordersCollection.find({ status: 'pending' })
-                        .toArray((err, documents) => {
-                            res.send(documents);
-                        })
-                } else {
-                    ordersCollection.find({ status: 'pending', email: req.query.email })
-                        .toArray((err, documents) => {
-                            res.send(documents);
-                        })
-                }
-            })
-    })
+})
 
-    app.get('/completeorders', (req, res) => {
-        admin.find({ email: req.query.email })
+
+app.get('/pendingorders', (req, res) => {
+    admin.find({ email: req.query.email })
+        .toArray((err, documents) => {
+            if (documents.length) {
+                ordersCollection.find({ status: 'pending' })
+                    .toArray((err, documents) => {
+                        res.send(documents);
+                    })
+            } else {
+                ordersCollection.find({ status: 'pending', email: req.query.email })
+                    .toArray((err, documents) => {
+                        res.send(documents);
+                    })
+            }
+        })
+})
+
+app.get('/completeorders', (req, res) => {
+    admin.find({ email: req.query.email })
         .toArray((err, document) => {
             if (document.length) {
                 ordersCollection.find({ status: 'complete' })
@@ -182,92 +185,103 @@ client.connect(err => {
                     })
             }
         })
-    })
+})
 
-    app.get('/singleorder', (req, res) => {
-        ordersCollection.find({ _id: ObjectId(req.query.id) })
-            .toArray((err, documents) => {
-                res.send(documents[0]);
-            })
-    })
-
-
-    app.get('/single-recharge', (req, res) => {
-        rechargeRequestCollection.find({ _id: ObjectId(req.query.id) })
-            .toArray((err, documents) => {
-                res.send(documents[0]);
-            })
-    })
+app.get('/singleorder', (req, res) => {
+    ordersCollection.find({ _id: ObjectId(req.query.id) })
+        .toArray((err, documents) => {
+            res.send(documents[0]);
+        })
+})
 
 
-
-    app.get('/loggedUser', (req, res) => {
-        usersCollection.find({ email: req.query.email })
-            .toArray((err, documents) => {
-                res.send(documents[0]);
-            })
-    })
+app.get('/single-recharge', (req, res) => {
+    rechargeRequestCollection.find({ _id: ObjectId(req.query.id) })
+        .toArray((err, documents) => {
+            res.send(documents[0]);
+        })
+})
 
 
 
-    app.patch('/confirm/:id', (req, res) => {
-        const id = req.params.id;
-        const data = req.body;
-
-        usersCollection.updateOne({ _id: ObjectId(id) },
-            { $set: { balance: data.ammount } }
-        )
-            .then(result => {
-                res.send(result)
-
-            })
-
-
-    })
+app.get('/loggedUser', (req, res) => {
+    usersCollection.find({ email: req.query.email })
+        .toArray((err, documents) => {
+            res.send(documents[0]);
+        })
+})
 
 
 
+app.patch('/confirm/:id', (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
 
-    app.patch('/updatestatus/:id', (req, res) => {
-        const id = req.params.id;
-        const data = req.body;
+    usersCollection.updateOne({ _id: ObjectId(id) },
+        { $set: { balance: data.ammount } }
+    )
+        .then(result => {
+            res.send(result)
 
-        ordersCollection.updateOne({ _id: ObjectId(id) },
-            { $set: { status: data.orderStatus, attachment: data.idUrl } }
-        )
-            .then(result => {
-                res.send(result)
-
-            })
-
-
-    })
+        })
 
 
-    app.patch('/update-recharge/:id', (req, res) => {
-        const id = req.params.id;
-        const data = req.body;
-
-        rechargeRequestCollection.updateOne({ _id: ObjectId(id) },
-            { $set: { status: 'Complete' } }
-        )
-            .then(result => {
-
-                usersCollection.updateOne({ email: data.email },
-                    { $set: { balance: data.paymentAmmount } }
-                )
-
-                res.send(result)
-
-
-            })
-
-
-    })
+})
 
 
 
-    console.log('connected')
+
+app.patch('/updatestatus/:id', (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+
+    ordersCollection.updateOne({ _id: ObjectId(id) },
+        { $set: { status: data.orderStatus, attachment: data.idUrl } }
+    )
+        .then(result => {
+            res.send(result)
+
+        })
+
+
+})
+
+
+app.patch('/update-recharge/:id', (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+
+    rechargeRequestCollection.updateOne({ _id: ObjectId(id) },
+        { $set: { status: 'Complete' } }
+    )
+        .then(result => {
+
+            usersCollection.updateOne({ email: data.email },
+                { $set: { balance: data.paymentAmmount } }
+            )
+
+            res.send(result)
+
+
+        })
+
+
+})
+
+
+app.get('/orders-for-place', (req, res) => {
+
+    ordersCollection.find()
+        .toArray((err, documents) => {
+            res.send(documents);
+        })
+
+})
+
+
+
+
+console.log('connected')
 
 });
 
