@@ -213,6 +213,14 @@ client.connect(err => {
     })
 
 
+    app.get('/deleteorder', (req, res) => {
+        ordersCollection.deleteOne({ _id: ObjectId(req.query.id) })
+            .then(result => {
+                res.send(result)
+            })
+    })
+
+
     app.get('/single-recharge', (req, res) => {
         rechargeRequestCollection.find({ _id: ObjectId(req.query.id) })
             .toArray((err, documents) => {
@@ -263,6 +271,9 @@ client.connect(err => {
 
 
     })
+
+
+
 
 
     app.patch('/update-recharge/:id', (req, res) => {
